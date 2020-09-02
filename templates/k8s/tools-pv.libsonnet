@@ -2,7 +2,7 @@ local Kube = import "kube.libsonnet";
 {
   storageClassName::"bbzcxird03bsb81s-tools",
 
-  gen_pv(config): Kube.PersistentVolume("tools-jiro-"+config.project.shortName, config) {
+  gen_pv(config):: Kube.PersistentVolume("tools-jiro-"+config.project.shortName, config) {
     spec: {
       storageClassName: $.storageClassName,
       capacity: {
@@ -23,7 +23,7 @@ local Kube = import "kube.libsonnet";
     },
   },
 
-  gen_pvc(config): Kube.PersistentVolumeClaim("tools-claim-jiro-"+config.project.shortName, config) {
+  gen_pvc(config):: Kube.PersistentVolumeClaim("tools-claim-jiro-"+config.project.shortName, config) {
     spec: {
       storageClassName: $.storageClassName,
       accessModes: [

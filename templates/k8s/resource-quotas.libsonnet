@@ -1,7 +1,7 @@
 local Kube = import "kube.libsonnet";
 local Const = import "resource-packs.libsonnet";
 {
-  gen(config): Kube.ResourceQuota('jenkins-instance-quota', config) {
+  gen(config):: Kube.ResourceQuota('jenkins-instance-quota', config) {
     spec: {
       local spec = self,
       quotas_cpu::Const.pack_cpu*config.project.resourcePacks,

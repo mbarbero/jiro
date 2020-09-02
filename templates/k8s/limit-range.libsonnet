@@ -1,7 +1,7 @@
 local Kube = import "kube.libsonnet";
 local Const = import "resource-packs.libsonnet";
 {
-  gen(config): Kube.LimitRange("jenkins-instance-limit-range", config) {
+  gen(config):: Kube.LimitRange("jenkins-instance-limit-range", config) {
     spec: {
       local spec = self,
       quotas_cpu::Const.pack_cpu*config.project.resourcePacks,

@@ -1,6 +1,6 @@
 local Kube = import "kube.libsonnet";
 {
-  gen(config): Kube.Role("jenkins-master-owner", config) {
+  gen(config):: Kube.Role("jenkins-master-owner", config) {
     rules: [
       {
         apiGroups: [""],

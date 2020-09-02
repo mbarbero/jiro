@@ -1,5 +1,5 @@
 local Kube = import "kube.libsonnet";
 {
-  gen(config): 
+  gen(config):: 
     Kube.Namespace(config.kubernetes.master.namespace, config)
 }

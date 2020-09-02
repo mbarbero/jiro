@@ -1,6 +1,6 @@
 local Kube = import "kube.libsonnet";
 {
-  gen(config): Kube.Route(config.project.shortName, config) {
+  gen(config):: Kube.Route(config.project.shortName, config) {
     metadata+: {
       annotations+: {
         "haproxy.router.openshift.io/timeout": "60s",

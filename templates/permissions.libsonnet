@@ -1,5 +1,5 @@
 {
-  projectPermissions(unixGroupName, projectGroupPermissionsList): [
+  projectPermissions(unixGroupName, projectGroupPermissionsList):: [
     {
       principal: "anonymous",
       grantedPermissions: [

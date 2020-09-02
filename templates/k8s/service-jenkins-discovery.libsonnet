@@ -1,6 +1,6 @@
 local Kube = import "kube.libsonnet";
 {
-  gen(config): Kube.Service("jenkins-discovery", config) {
+  gen(config):: Kube.Service("jenkins-discovery", config) {
     spec: {
       ports: [
         {

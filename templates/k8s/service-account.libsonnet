@@ -1,5 +1,5 @@
 local Kube = import "kube.libsonnet";
 {
-  gen(config): 
+  gen(config):: 
     Kube.ServiceAccount(config.project.shortName, config)
 }

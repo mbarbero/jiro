@@ -1,6 +1,6 @@
 local Kube = import "kube.libsonnet";
 {
-  gen(config): Kube.Service("jenkins-ui", config) {
+  gen(config):: Kube.Service("jenkins-ui", config) {
     spec: {
       ports: [
         {

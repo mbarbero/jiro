@@ -1,5 +1,5 @@
 {
-  kubernetes(cloudName, config, agents): {
+  kubernetes(cloudName, config, agents):: {
     [cloudName]: {
       kind: "kubernetes",
       namespace: config.kubernetes.agents.namespace,

@@ -1,6 +1,6 @@
 local Kube = import "kube.libsonnet";
 {
-  gen(config): Kube.StatefulSet(config.kubernetes.master.stsName, config) {
+  gen(config):: Kube.StatefulSet(config.kubernetes.master.stsName, config) {
     local agents = import "../../../jiro-agents/agents.jsonnet",
     local defaultJnlpAgent = agents["basic"].variants[config.jiroMaster.remoting.version],
     spec: {
