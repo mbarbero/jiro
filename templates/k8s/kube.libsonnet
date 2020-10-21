@@ -1,47 +1,39 @@
-{
-  __:: {
-    KubeObject(apiVersion, kind, name, config):: {
-      local this = self,
-      apiVersion: apiVersion,
-      kind: kind,
-      metadata: {
-        name: name,
-        labels: $.JiroLabels(config),
-      },
-    },
-
-    KubeNSObject(apiVersion, kind, name, config):: self.KubeObject(apiVersion, kind, name, config) + {
-      metadata+: {
-        namespace: config.kubernetes.master.namespace,
-      },
-    },
+local KubeObject(apiVersion, kind, name, kubernetes) = {
+  apiVersion: apiVersion,
+  kind: kind,
+  metadata: {
+    name: name,
+    labels: kubernetes.labels,
   },
+};
 
+local KubeNSObject(apiVersion, kind, name, kubernetes) = KubeObject(apiVersion, kind, name, kubernetes) {
+  metadata+: {
+    namespace: kubernetes.namespace,
+  },
+};
+
+{
   List(items):: {
     apiVersion: "v1",
     kind: "List",
     items: [] + items,
   },
 
-  JiroLabels(config):: {
-    "org.eclipse.cbi.jiro/project.shortname": config.project.shortName,
-    "org.eclipse.cbi.jiro/project.fullName": config.project.fullName,
-  },
-
-  Namespace(name, config):: $.__.KubeObject("v1", "Namespace", name, config),
-  PersistentVolume(name, config):: $.__.KubeObject("v1", "PersistentVolume", name, config),
+  Namespace(kubernetes):: KubeObject("v1", "Namespace", kubernetes.namespace, kubernetes),
+  PersistentVolume(name, kubernetes):: KubeObject("v1", "PersistentVolume", name, kubernetes),
   
-  LimitRange(name, config):: $.__.KubeNSObject("v1", "LimitRange", name, config),
-  ResourceQuota(name, config):: $.__.KubeNSObject("v1", "ResourceQuota", name, config),
-  RoleBinding(name, config):: $.__.KubeNSObject("v1", "RoleBinding", name, config),
-  Role(name, config):: $.__.KubeNSObject("v1", "Role", name, config),
-  Route(name, config):: $.__.KubeNSObject("route.openshift.io/v1", "Route", name, config),
-  ServiceAccount(name, config):: $.__.KubeNSObject("v1", "ServiceAccount", name, config),
-  Service(name, config):: $.__.KubeNSObject("v1", "Service", name, config),
-  ConfigMap(name, config):: $.__.KubeNSObject("v1", "ConfigMap", name, config),
-  Secret(name, config):: $.__.KubeNSObject("v1", "Secret", name, config),
-  PersistentVolumeClaim(name, config):: $.__.KubeNSObject("v1", "PersistentVolumeClaim", name, config),
-  StatefulSet(name, config):: $.__.KubeNSObject("apps/v1", "StatefulSet", name, config),
+  LimitRange(name, kubernetes):: KubeNSObject("v1", "LimitRange", name, kubernetes),
+  ResourceQuota(name, kubernetes):: KubeNSObject("v1", "ResourceQuota", name, kubernetes),
+  RoleBinding(name, kubernetes):: KubeNSObject("v1", "RoleBinding", name, kubernetes),
+  Role(name, kubernetes):: KubeNSObject("v1", "Role", name, kubernetes),
+  Route(name, kubernetes):: KubeNSObject("route.openshift.io/v1", "Route", name, kubernetes),
+  ServiceAccount(name, kubernetes):: KubeNSObject("v1", "ServiceAccount", name, kubernetes),
+  Service(name, kubernetes):: KubeNSObject("v1", "Service", name, kubernetes),
+  kubernetesMap(name, kubernetes):: KubeNSObject("v1", "kubernetesMap", name, kubernetes),
+  Secret(name, kubernetes):: KubeNSObject("v1", "Secret", name, kubernetes),
+  PersistentVolumeClaim(name, kubernetes):: KubeNSObject("v1", "PersistentVolumeClaim", name, kubernetes),
+  StatefulSet(name, kubernetes):: KubeNSObject("apps/v1", "StatefulSet", name, kubernetes),
 
   stripSI(n):: (
     local suffix_len =
@@ -62,10 +54,4 @@
     local n_len = std.length(n);
     std.parseInt(std.substr(n, 0, n_len - suffix_len))
   ),
-
-  pair_list_ex(tab, kfield, vfield)::
-    [{ [kfield]: k, [vfield]: tab[k] } for k in std.objectFields(tab)],
-
-  pair_list(tab)::
-    self.pair_list_ex(tab, "name", "value"),
 }

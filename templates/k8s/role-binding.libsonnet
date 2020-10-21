@@ -1,16 +1,19 @@
 local Kube = import "kube.libsonnet";
-{
-  gen(config):: Kube.RoleBinding(config.project.shortName, config) {
-    roleRef: {
-      name: "jenkins-master-owner",
-      namespace: config.kubernetes.master.namespace,
-    },
-    subjects: [
-      {
-        kind: "ServiceAccount",
-        name: config.project.shortName,
-        namespace: config.kubernetes.master.namespace,
-      },
-    ],
+
+local newRoleBinding(kubernetes) = Kube.RoleBinding(kubernetes.serviceAccount.roleName, kubernetes) {
+  roleRef: {
+    kind: "Role",
+    name: kubernetes.serviceAccount.roleName,
+    namespace: kubernetes.namespace,
   },
+  subjects: [
+    {
+      kind: "ServiceAccount",
+      name: kubernetes.serviceAccount.name,
+      namespace: kubernetes.namespace,
+    },
+  ],
+};
+{
+  newRoleBinding:: newRoleBinding
 }

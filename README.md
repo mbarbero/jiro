@@ -96,6 +96,11 @@ Scale down to 0 the StatefulSet running Jenkins then scale it up to 1. It makes 
 * [hbs-cli](https://www.npmjs.com/package/hbs-cli)
 
       $ npm i -g hbs-cli
+* [jsonnet](https://jsonnet.org/learning/tutorial.html) (we recommend the go implementation for faster generation)
+* [dir2json](https://github.com/sbarzowski/dir2json)
+
+      $ go get github.com/sbarzowski/dir2json
+
 
 ## Installation
 

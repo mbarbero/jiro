@@ -48,7 +48,6 @@ waitReadyReplicas() {
 
 oc apply -f "${instance}/target/k8s/namespace.json"
 
-"${SCRIPT_FOLDER}/../jenkins-reload.sh" "${instance}" || :
 
 oc apply -f "${instance}/target/k8s/role.json"
 oc apply -f "${instance}/target/k8s/service-account.json"
@@ -61,6 +60,7 @@ oc apply -f "${instance}/target/k8s/route.json"
 oc apply -f "${instance}/target/k8s/tools-pv.json"
 oc apply -f "${instance}/target/k8s/known-hosts.json"
 oc apply -f "${instance}/target/k8s/m2-dir.json"
+oc apply -f "${instance}/target/k8s/configmap-jenkins-config.json"
 
 if [[ -f "${instance}/target/.secrets/k8s/m2-secret-dir.json" ]]; then
   oc apply -f "${instance}/target/.secrets/k8s/m2-secret-dir.json"

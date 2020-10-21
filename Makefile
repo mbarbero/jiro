@@ -10,7 +10,6 @@ SHELL=/usr/bin/env bash
 
 INSTANCES=$(patsubst instances/%,%,$(wildcard instances/*))
 IMAGE_INSTANCES=$(patsubst %,image_%,$(INSTANCES))
-K8S_INSTANCES=$(patsubst %,k8s_%,$(INSTANCES))
 PUSH_INSTANCES=$(patsubst %,push_%,$(INSTANCES))
 DEPLOY_INSTANCES=$(patsubst %,deploy_%,$(INSTANCES))
 CLEAN_INSTANCES=$(patsubst %,clean_%,$(INSTANCES))
@@ -18,7 +17,7 @@ DELETE_INSTANCES=$(patsubst %,delete_%,$(INSTANCES))
 GENCONFIG_INSTANCES=$(patsubst %,genconfig_%,$(INSTANCES))
 DOCKERTOOLS_PATH=.dockertools
 
-.PHONY: all clean all_images push_all_images k8s_all_instances deploy_all_instances clean_all_instances tests $(IMAGE_INSTANCES) $(K8S_INSTANCES) $(PUSH_INSTANCES) $(DEPLOY_INSTANCES) $(CLEAN_INSTANCES) $(DELETE_INSTANCES) $(GENCONFIG_INSTANCES) error_resources error_pages deploy_error_pages dockertools
+.PHONY: all clean all_images push_all_images k8s_all_instances deploy_all_instances clean_all_instances tests $(IMAGE_INSTANCES) $(PUSH_INSTANCES) $(DEPLOY_INSTANCES) $(CLEAN_INSTANCES) $(DELETE_INSTANCES) $(GENCONFIG_INSTANCES) error_resources error_pages deploy_error_pages dockertools
 
 .bashtools:
 	bash -c "$$(curl -fsSL https://raw.githubusercontent.com/completeworks/bashtools/master/install.sh)"
@@ -48,12 +47,7 @@ $(IMAGE_INSTANCES): image_% : genconfig_%
 
 all_images: $(IMAGE_INSTANCES)
 
-$(K8S_INSTANCES): k8s_% : image_%
-	./build/gen-k8s.sh instances/$(patsubst k8s_%,%,$@)
-
-k8s_all_instances: $(K8S_INSTANCES)
-
-$(DEPLOY_INSTANCES): deploy_% : k8s_%
+$(DEPLOY_INSTANCES): deploy_% : image_%
 	./build/k8s-deploy.sh instances/$(patsubst deploy_%,%,$@)
 
 deploy_all_instances: $(DEPLOY_INSTANCES)

@@ -1,6 +1,7 @@
 local Kube = import "kube.libsonnet";
-{
-  gen(config):: Kube.StatefulSet(config.kubernetes.master.stsName, config) {
+local resourcePacksTemplate = import "resource-packs.libsonnet";
+
+local newStatefulSet(kubernetes) = Kube.StatefulSet(kubernetes.statefulSet.name, kubernetes) {
     local agents = import "../../../jiro-agents/agents.jsonnet",
     local defaultJnlpAgent = agents["basic"].variants[config.jiroMaster.remoting.version],
     spec: {
@@ -10,7 +11,7 @@ local Kube = import "kube.libsonnet";
           "org.eclipse.cbi.jiro/project.fullName": config.project.fullName,
         },
       },
-      serviceName: config.project.shortName,
+      serviceName: kubernetes.serviceAccount.name,
       template: {
         metadata: {
           labels: Kube.JiroLabels(config),
@@ -48,19 +49,19 @@ local Kube = import "kube.libsonnet";
                   port: config.deployment.uiPort,
                   scheme: "HTTP",
                 },
-                initialDelaySeconds: config.kubernetes.master.probe.liveness.delaySeconds,
-                periodSeconds: config.kubernetes.master.probe.liveness.periodSeconds,
-                failureThreshold: config.kubernetes.master.probe.liveness.failureThreshold,
-                timeoutSeconds: config.kubernetes.master.probe.liveness.timeoutSeconds,
+                initialDelaySeconds: 480,
+                periodSeconds: 30,
+                failureThreshold: 30,
+                timeoutSeconds: 5,
               },
               readinessProbe: {
                 tcpSocket: {
                   port: config.deployment.uiPort,
                 },
-                initialDelaySeconds: config.kubernetes.master.probe.readiness.delaySeconds,
-                periodSeconds: config.kubernetes.master.probe.readiness.periodSeconds,
-                failureThreshold: config.kubernetes.master.probe.readiness.failureThreshold,
-                timeoutSeconds: config.kubernetes.master.probe.readiness.timeoutSeconds,
+                initialDelaySeconds: 1,
+                periodSeconds: 5,
+                failureThreshold: 5,
+                timeoutSeconds: 10,
               },
               ports: [
                 {
@@ -72,15 +73,7 @@ local Kube = import "kube.libsonnet";
                   protocol: "TCP",
                 },
               ],
-              resources: {
-                requests: {
-                  cpu: config.kubernetes.master.resources.cpu.request,
-                },
-                limits: {
-                  cpu: config.kubernetes.master.resources.cpu.limit,
-                  memory: config.kubernetes.master.resources.memory.limit,
-                },
-              },
+              resources: resources,
               lifecycle: {
                 preStop: {
                   exec: {
@@ -175,6 +168,7 @@ local Kube = import "kube.libsonnet";
                     "--prefix=" + config.deployment.prefix,
                     "--webroot=" + config.jiroMaster.webroot,
                     "--pluginroot=" + config.jiroMaster.pluginroot,
+                    "--httpPort=" + config.deployment.uiPort,
                     "--controlPort=" + config.deployment.controlPort,
                   ]),
                 },
@@ -232,5 +226,6 @@ local Kube = import "kube.libsonnet";
         },
       ],
     },
-  },
+  };
+{
 }

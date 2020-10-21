@@ -8,9 +8,6 @@
 # SPDX-License-Identifier: EPL-2.0 OR MIT
 #*******************************************************************************
 
-# * Call gen-permissions.sh script
-# * Call gen-yaml.sh script
-
 # Bash strict-mode
 set -o errexit
 set -o nounset
@@ -35,27 +32,13 @@ fi
 target="${instance}/target/jenkins"
 mkdir -p "${target}"
 
-if [[ -f "${instance}/jenkins/plugins-list" ]]; then
-  echo "# GENERATED FILE - DO NOT EDIT" > "${target}/plugins-list"
-  cat "${instance}/jenkins/plugins-list" >> "${target}/plugins-list"
-fi
+#jenkinsTemplateFolder="${SCRIPT_FOLDER}/../templates/jenkins"
 
-jenkinsTemplateFolder="${SCRIPT_FOLDER}/../templates/jenkins"
-jenkinsActualVersion="$(jq -r '.jiroMaster.version' "${instance}/target/config.json")"
-if [[ -d "${jenkinsTemplateFolder}/${jenkinsActualVersion}" ]]; then
-  jenkinsTemplateFolder="${SCRIPT_FOLDER}/../templates/jenkins/${jenkinsActualVersion}"
-fi
-
-jenkinsTheme="$(jq -r '.jenkins.theme' "${instance}/target/config.json")"
-echo "/* GENERATED FILE - DO NOT EDIT */" > "${target}/${jenkinsTheme}.css.override"
-hbs -s -D "${instance}/target/config.json" "${jenkinsTemplateFolder}/${jenkinsTheme}.css.hbs" >> "${target}/${jenkinsTheme}.css.override"
+#jenkinsTheme="$(jq -r '.jenkins.theme' "${instance}/target/config.json")"
+#echo "/* GENERATED FILE - DO NOT EDIT */" > "${target}/${jenkinsTheme}.css.override"
+#hbs -s -D "${instance}/target/config.json" "${jenkinsTemplateFolder}/${jenkinsTheme}.css.hbs" >> "${target}/${jenkinsTheme}.css.override"
 
 displayName="$(jq -r '.project.displayName' "${instance}/target/config.json")"
 cat <<EOF > "${target}/title.js"
 document.title = "${displayName} - " + document.title;
 EOF
-
-mkdir -p "${target}/partials"
-"${SCRIPT_FOLDER}/gen-permissions.sh" "${instance}/target/config.json" > "${target}/partials/permissions.hbs"
-
-"${SCRIPT_FOLDER}/gen-yaml.sh" "${instance}/jenkins/configuration.yml" "${jenkinsTemplateFolder}/configuration.yml.hbs" "${instance}/target/config.json" "${target}/partials" > "${target}/configuration.yml"

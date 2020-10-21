@@ -25,8 +25,6 @@ fi
 regen() {
   local instance="${1}"
   "${SCRIPT_FOLDER}/build/gen-config.sh" "${instance}"
-	"${SCRIPT_FOLDER}/build/gen-jenkins.sh" "${instance}"
-	"${SCRIPT_FOLDER}/build/gen-k8s.sh" "${instance}"
 }
 
 reload() {
@@ -39,23 +37,25 @@ reload() {
   if oc get configmap -n "${namespace}" jenkins-config &> /dev/null; then
     previousConfigMapVersion="$(oc get configmap -n "${namespace}" jenkins-config -o json | jq -r '.metadata.resourceVersion')"
   fi
-  oc apply -f "${instance}/target/k8s/configmap-jenkins-config.yml"
+  oc apply -f "${instance}/target/k8s/configmap-jenkins-config.json"
   if [[ -n "${previousConfigMapVersion:-}" ]]; then
     local newConfigMapVersion
     newConfigMapVersion="$(oc get configmap -n "${namespace}" jenkins-config -o json | jq -r '.metadata.resourceVersion')"
     if [[ "${previousConfigMapVersion}" != "${newConfigMapVersion}" ]]; then
-      local remoteConfig
+      local remoteConfig localConfig
       remoteConfig=$(mktemp)
+      localConfig=$(mktemp)
       oc rsh -n "${namespace}" "${projectShortName}-0" cat "/etc/jenkins/jenkins.yaml" > "${remoteConfig}"
-      diff -Z -B "${remoteConfig}" "${instance}/target/jenkins/configuration.yml" || :
+      jq -r '.data["jenkins.yaml"]' "${instance}/target/k8s/configmap-jenkins-config.json" > "${localConfig}"
+      diff -Z -B "${remoteConfig}" "${localConfig}" || :
       echo -n "Waiting for the Jenkins CasC config map to be updated on the pod..."
-      while ! diff -Z -B "${remoteConfig}" "${instance}/target/jenkins/configuration.yml" > /dev/null; do
+      while ! diff -Z -B "${remoteConfig}" "${localConfig}" > /dev/null; do
         sleep 5
         echo -n "."
         oc rsh -n "${namespace}" "${projectShortName}-0" cat "/etc/jenkins/jenkins.yaml" > "${remoteConfig}"
       done
       echo -e "\n"
-      rm -f "${remoteConfig}"
+      rm -f "${remoteConfig}" "${localConfig}"
     fi
   fi
   echo "Reloading Jenkins CasC file..."

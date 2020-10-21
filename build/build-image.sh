@@ -8,8 +8,6 @@
 # SPDX-License-Identifier: EPL-2.0 OR MIT
 #*******************************************************************************
 
-# * Call gen-jenkinss.sh script
-# * Call gen-dockerfile.sh script
 # * Build dockerfile
 export LOG_LEVEL="${LOG_LEVEL:-600}"
 # shellcheck disable=SC1090
@@ -30,9 +28,6 @@ if [ ! -d "${INSTANCE}" ]; then
   ERROR "no 'instance' at '${INSTANCE}'"
   exit 1
 fi
-
-"${SCRIPT_FOLDER}/gen-jenkins.sh" "${INSTANCE}"
-"${SCRIPT_FOLDER}/gen-dockerfile.sh" "${INSTANCE}"
 
 TOOLS_IMAGE="eclipsecbi/adoptopenjdk-coreutils:openjdk8-openj9-alpine-slim"
 CONFIG_JSON="${INSTANCE}/target/config.json"
